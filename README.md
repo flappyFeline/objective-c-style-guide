@@ -405,7 +405,7 @@ if (currentY - scrollViewHeight < y) {
 
 多个变量赋值时每个变量独占一行，并且使用 Xcode 的 [XAlign][XAlign] 插件将等号对齐，大大提升代码美感和可读性。
 
-[Naming_1]:http://qfi.sh/XAlign/
+[XAlign]:http://qfi.sh/XAlign/
 
 **推荐：**
 
