@@ -288,24 +288,50 @@ static const NSTimeInterval fadeTime = 1.7;
 
 属性和局部变量应该使用驼峰命名法并且首字母小写。
 
-为了保持一致，实例变量应该使用驼峰命名法命名，并且首字母小写，**并且不加下划线前缀**。以下划线开头的变量名非常影响代码的视觉美感，更何况Xcode的语法高亮能够非常明显地区分出本地变量和实例变量，根本不会存在误会，除非团队中有程序员是色盲。
+为了保持一致，实例变量应该使用驼峰命名法命名，并且首字母小写，**并且不加下划线前缀**。以下划线开头的变量名非常影响代码的视觉美感，更何况Xcode的语法高亮能够非常明显地区分出本地变量和实例变量，根本不会存在误会，除非团队中有程序员是色盲。并且，操作属性也应使用 `self.xxx` 的方式，而不要直接操作下划线开头的实例变量，由此带来的额外消耗完全可以忽略不计，但是代码美感却大大提升。
 
 **推荐：**
 
 ```objc
 @interface Section : NSObject {
-    NSString *headline;
     NSString *subtitle;
 }
+
+@property (strong, nonatmoic) NSString *headline;
+
+@end
+
+@implementation Section
+
+- (void)foo
+{
+  self.headline = @"Headline";
+  subtitle      = @"Subtitle";
+}
+
+@end
 ```
 
 **反对：**
 
 ```objc
 @interface Section : NSObject {
-    NSString *_headline;
     NSString *_subtitle;
 }
+
+@property (strong, nonatmoic) NSString *headline;
+
+@end
+
+@implementation Section
+
+- (void)foo
+{
+  _headline = @"Headline";
+  _subtitle = @"Subtitle";
+}
+
+@end
 ```
 
 [Naming_1]:https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/MemoryMgmt/Articles/MemoryMgmt.html
