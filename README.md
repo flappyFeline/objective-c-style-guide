@@ -416,9 +416,9 @@ NSNumber *shouldUseLiteral = @YES;
 NSNumber *buildingZIPCode  = @10018;
 bool isAvailable           = YES;
 
-- (void) dictWillLoad;
-- (void) dictIsLoading;
-- (void) dictDidLoad;
+- (void)dictWillLoad;
+- (void)dictIsLoading;
+- (void)dictDidLoad;
 ```
 
 **反对：**
@@ -430,10 +430,10 @@ NSNumber *shouldUseLiterals = @YES;
 NSNumber *buildingZIPCode = @10018;
 bool available = YES;
 
-- (void) dictLoading;
-- (void) dictLoaded;
-- (void) beforeDictLoad;
-- (void) afterDictLoad;
+- (void)dictLoading;
+- (void)dictLoaded;
+- (void)beforeDictLoad;
+- (void)afterDictLoad;
 ```
 
 ## CGRect 函数
