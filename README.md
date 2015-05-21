@@ -367,7 +367,7 @@ if (currentY - scrollViewHeight < y) {
 
 ```objc
 if (currentY - scrollViewHeight < y) {
-    currentY = scrollViewHeight + y; // prevent animation can't reach top
+    currentY = scrollViewHeight + y; //prevent animation can't reach top
 }
 ```
 
