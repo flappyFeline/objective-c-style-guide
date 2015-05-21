@@ -56,7 +56,7 @@ view.backgroundColor = [UIColor orangeColor];
 
 **反对：**
 ```objc
-[view setBackgroundColor:[UIColor orangeColor]];
+[view setBackgroundColor:UIColor.orangeColor];
 UIApplication.sharedApplication.delegate;
 ```
 
@@ -64,23 +64,45 @@ UIApplication.sharedApplication.delegate;
 
 * 一个缩进使用 4 个空格，永远不要使用制表符（tab）缩进。请确保在 Xcode 中设置了此偏好。
 * 方法的大括号和其他的大括号（`if`/`else`/`switch`/`while` 等等）始终和声明在同一行开始，在新的一行结束。
+* 多个分支的语句块（`if-else`/`switch`），在条件之间（`else`/`case`）加入空行，有助于视觉清晰度和代码组织性。
+* 方法之间应该正好空一行，这有助于视觉清晰度和代码组织性。在方法中的功能块之间应该使用空白分开，但往往可能应该创建一个新的方法。
+* 方法定义的花括号独占一行，有利于快速区分方法名和第一行代码实现，更加清晰易读
+* `@synthesize` 和 `@dynamic` 在实现中每个都应该占一个新行。
 
 **推荐：**
 ```objc
-if (user.isHappy) {
-// Do something
-}
-else {
-// Do something else
+- (void)foo
+{
+    if (user.isHappy) {
+        // Do something
+
+    } else if (user.isCalm) {
+        // Do something else
+
+    } else {
+        // Do something else
+    }
 }
 ```
-* 方法之间应该正好空一行，这有助于视觉清晰度和代码组织性。在方法中的功能块之间应该使用空白分开，但往往可能应该创建一个新的方法。
-* `@synthesize` 和 `@dynamic` 在实现中每个都应该占一个新行。
+
+**反对：**
+```objc
+- (void)foo {
+    if (user.isHappy) {
+        // Do something
+    } else if (user.isCalm) {
+        // Do something else
+    }
+    // Do something else
+    else {
+    }
+}
+```
 
 
 ## 条件判断
 
-条件判断主体部分应该始终使用大括号括住来防止[出错][Condiationals_1]，即使它可以不用大括号（例如它只需要一行）。这些错误包括添加第二行（代码）并希望它是 if 语句的一部分时。还有另外一种[更危险的][Condiationals_2]，当 if 语句里面的一行被注释掉，下一行就会在不经意间成为了这个 if 语句的一部分。此外，这种风格也更符合所有其他的条件判断，因此也更容易检查。
+条件判断主体部分应该始终使用大括号括住来防止[出错][Conditionals_1]，即使它可以不用大括号（例如它只需要一行）。这些错误包括添加第二行（代码）并希望它是 if 语句的一部分时。还有另外一种[更危险的][Conditionals_2]，当 if 语句里面的一行被注释掉，下一行就会在不经意间成为了这个 if 语句的一部分。此外，这种风格也更符合所有其他的条件判断，因此也更容易检查。
 
 **推荐：**
 ```objc
@@ -102,12 +124,12 @@ if (!error) return success;
 ```
 
 
-[Condiationals_1]:(https://github.com/NYTimes/objective-c-style-guide/issues/26#issuecomment-22074256)
-[Condiationals_2]:http://programmers.stackexchange.com/a/16530
+[Conditionals_1]:https://github.com/NYTimes/objective-c-style-guide/issues/26#issuecomment-22074256
+[Conditionals_2]:http://programmers.stackexchange.com/a/16530
 
 ### 三目运算符
 
-三目运算符，? ，只有当它可以增加代码清晰度或整洁时才使用。单一的条件都应该优先考虑使用。多条件时通常使用 if 语句会更易懂，或者重构为实例变量。
+三目运算符，? ，只有当它可以增加代码清晰度或整洁时才使用，且使用时应该在运算符前后使用一个空格来提升代码可读性。单一的条件都应该优先考虑使用。多条件时通常使用 if 语句会更易懂，或者重构为实例变量。
 
 **推荐：**
 ```objc
@@ -116,16 +138,18 @@ result = a > b ? x : y;
 
 **反对：**
 ```objc
+result = a?x:y;
 result = a > b ? x = c > d ? c : d : y;
 ```
 
 ## 错误处理
 
-当引用一个返回错误参数（error parameter）的方法时，应该针对返回值，而非错误变量。
+当引用一个返回错误参数（error parameter）的方法时，应该优先判断该方法本身的返回值，返回值指出方法错误后，再根据错误变量来判断具体是哪一种错误，不得忽略方法本身的返回值而直接判断错误变量，因为一些苹果的 API 在成功的情况下会写一些垃圾值给错误参数（如果非空），所以针对错误变量可能会造成虚假结果（以及接下来的崩溃）。
 
 **推荐：**
 ```objc
 NSError *error;
+
 if (![self trySomethingWithError:&error]) {
     // 处理错误
 }
@@ -134,12 +158,13 @@ if (![self trySomethingWithError:&error]) {
 **反对：**
 ```objc
 NSError *error;
+
 [self trySomethingWithError:&error];
+
 if (error) {
     // 处理错误
 }
 ```
-一些苹果的 API 在成功的情况下会写一些垃圾值给错误参数（如果非空），所以针对错误变量可能会造成虚假结果（以及接下来的崩溃）。
 
 ## 方法
 
@@ -152,17 +177,19 @@ if (error) {
 
 ## 变量
 
-变量名应该尽可能命名为描述性的。除了 `for()` 循环外，其他情况都应该避免使用单字母的变量名。
-星号表示指针属于变量，例如：`NSString *text` 不要写成 `NSString* text` 或者 `NSString * text` ，常量除外。
-尽量定义属性来代替直接使用实例变量。除了初始化方法（`init`， `initWithCoder:`，等）， `dealloc` 方法和自定义的 setters 和 getters 内部，应避免直接访问实例变量。更多有关在初始化方法和 dealloc 方法中使用访问器方法的信息，参见[这里][Variables_1]。
+星号表示指针属于变量，例如：`NSString *text` 不要写成 `NSString* text` 或者 `NSString * text` ，**常量除外**。
+
+尽量定义属性来代替直接使用实例变量。除了初始化方法（`init`， `initWithCoder:`，等）， `dealloc` 方法和自定义的 setters 和 getters 内部，应避免直接访问实例变量，更何况操作一大堆以下划线开头的变量看起来也不具代码美感。更多有关在初始化方法和 dealloc 方法中使用访问器方法的信息，参见[这里][Variables_1]。
 
 
 **推荐：**
 
 ```objc
-@interface NYTSection: NSObject
+@interface Section: NSObject
 
-@property (nonatomic) NSString *headline;
+@property (strong, nonatomic) NSString *headline;
+
+@property (strong, nonatomic, readonly) NSString *subtitle;
 
 @end
 ```
@@ -170,8 +197,9 @@ if (error) {
 **反对：**
 
 ```objc
-@interface NYTSection : NSObject {
+@interface Section : NSObject {
     NSString *headline;
+    NSString *subtitle;
 }
 ```
 
@@ -186,9 +214,47 @@ if (error) {
 
 ## 命名
 
+变量命名应该是有意义的，能够快速、清晰、准确、排除多义性地表达出这个变量本身是什么以及它的用途。
+
+**举例：**
+
+* `NSString *title`：清晰地表达出这是一个标题字符串
+* `NSString *titleHTML`：清晰地表达出这不仅是一个标题字符串，而且里面的内容含有HTML标签。尾缀加“HTML”是必要的，这样后续接手的程序员一下子就会明白这个字符串需要使用浏览器解析后才能正确显示出来
+* `NSAttributedString *titleAttributedString`：清晰地表达出这不仅是一个标题字符串，而且里面的内容需要使用Attributed Label才能正确显示出来，道理同上
+* `NSURL *URL` vs. `NSString *URLString`：与其因为变量名本身容易导致变量类型的不确定性，还不如直接就把变量类型使用在变量名字中以消除歧义。
+* `NSDate *lastModifiedDate`：比如这里如果不加尾缀“Date”，仅仅是“lastModified”不能一下子让人确定这是个什么类型的变量（比如也许是时间戳）
+* `NSString *releaseDateString`：比如这里如果不加尾缀“String”，那就会给人误解这是一个NSDate类型的变量
+
+变量名应该尽可能命名为描述性的。除了 `for()` 循环外，其他情况都应该避免使用单字母的变量名。
+
 尽可能遵守苹果的命名约定，尤其那些涉及到[内存管理规则][Naming_1]，（[NARC][Naming_2]）的。
 
-长的和描述性的方法名和变量名都不错。
+尽量不使用缩写，单词完整的名字虽然更长，但却更利于代码的视觉清晰、可读性，更加利于其他人理解。除非是以下这种已经是生活常识的单词缩写，否则必须严格禁止使用缩写：
+
+* HTML
+* USB
+* fps
+
+**一些iOS特有的缩写是允许的：**
+
+* dict (dictionary，完整写确实太长了，且dict本身也是dictionary的常识性缩写)
+* kvo (key-value observing)
+* _TODO_
+
+**一些同样是iOS特有的缩写，但我个人强烈不建议使用：**
+
+* vc (viewController)
+* _TODO_
+
+**非常不好的缩写：**
+
+* idx (index)
+* cnt (count)
+* len (length)
+* btn (button)
+* ctx (context)
+
+为了代码清晰易读易懂，类名、变量、常量应该始终使用三个字母的前缀（例如 `NYT`），但 Core Data 实体名称可以省略。常量应该使用相关类的名字作为前缀并使用全大写+下划线的命名法，而不是驼峰命名法，下划线尽量不超过2个，做到简洁明了。
 
 **推荐：**
 
@@ -200,36 +266,41 @@ UIButton *settingsButton;
 
 ```objc
 UIButton *setBut;
+UIButton *setBtn;
 ```
-类名和常量应该始终使用三个字母的前缀（例如 `NYT`），但 Core Data 实体名称可以省略。为了代码清晰，常量应该使用相关类的名字作为前缀并使用驼峰命名法。
 
 **推荐：**
 
 ```objc
-static const NSTimeInterval NYTArticleViewControllerNavigationFadeAnimationDuration = 0.3;
+static const NSTimeInterval FADE_DURATION = 0.3;
 ```
 
 **反对：**
 
 ```objc
-static const NSTimeInterval fadetime = 1.7;
+static const NSTimeInterval fadeTime = 1.7;
 ```
 
 属性和局部变量应该使用驼峰命名法并且首字母小写。
 
-为了保持一致，实例变量应该使用驼峰命名法命名，并且首字母小写，以下划线为前缀。这与 LLVM 自动合成的实例变量相一致。
-**如果 LLVM 可以自动合成变量，那就让它自动合成。**
+为了保持一致，实例变量应该使用驼峰命名法命名，并且首字母小写，**并且不加下划线前缀**。以下划线开头的变量名非常影响代码的视觉美感，更何况Xcode的语法高亮能够非常明显地区分出本地变量和实例变量，根本不会存在误会。
 
 **推荐：**
 
 ```objc
-@synthesize descriptiveVariableName = _descriptiveVariableName;
+@interface Section : NSObject {
+    NSString *headline;
+    NSString *subtitle;
+}
 ```
 
 **反对：**
 
 ```objc
-id varnm;
+@interface Section : NSObject {
+    NSString *_headline;
+    NSString *_subtitle;
+}
 ```
 
 [Naming_1]:https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/MemoryMgmt/Articles/MemoryMgmt.html
@@ -238,22 +309,51 @@ id varnm;
 
 ## 注释
 
-当需要的时候，注释应该被用来解释 **为什么** 特定代码做了某些事情。所使用的任何注释必须保持最新否则就删除掉。
+**注释一定要写中文！**
+**注释一定要写中文！**
+**注释一定要写中文！**
+重要的事说三遍（国际化开发团队除外）。这个理由非常简单：
+
+* 英语不是我们的母语，不能让写注释成为程序员的心智负担
+* 98%的开发团队都是本土化的，剩下的1%会慢慢妥协的，最后那1%才是真正的国际化开发团队
+
+**注释尽量单独占一行，而不是跟在代码后面，且//符号后面跟一个空格，中英文混合输入时英文前后不要再加空格**，这样读起来更加清晰
+
+注释应该被用来解释 **为什么** 特定代码做了某些事情，并且当遇到复杂的事情时必须能够讲清楚最终是怎么做到的。所使用的任何注释都必须保持最新，否则就该删除掉。
 
 通常应该避免一大块注释，代码就应该尽量作为自身的文档，只需要隔几行写几句说明。这并不适用于那些用来生成文档的注释。
+
+**推荐：**
+
+```objc
+// 防止字幕太短滚动不到上边缘
+if (currentY - scrollViewHeight < y) {
+    currentY = scrollViewHeight + y;
+}
+```
+
+**反对：**
+
+```objc
+if (currentY - scrollViewHeight < y) {
+    currentY = scrollViewHeight + y; // prevent animation can't reach top
+}
+```
 
 
 ## init 和 dealloc
 
-`dealloc` 方法应该放在实现文件的最上面，并且刚好在 `@synthesize` 和 `@dynamic` 语句的后面。在任何类中，`init` 都应该直接放在 `dealloc` 方法的下面。
+`dealloc` 方法应该紧跟在 `init` 方法的下面。
 
 `init` 方法的结构应该像这样：
 
 ```objc
-- (instancetype)init {
-    self = [super init]; // 或者调用指定的初始化方法
+- (instancetype)init
+{
+    self = [super init];
+
     if (self) {
-        // Custom initialization
+        // ...
     }
 
     return self;
@@ -262,24 +362,47 @@ id varnm;
 
 ## 字面量
 
-每当创建 `NSString`， `NSDictionary`， `NSArray`，和 `NSNumber` 类的不可变实例时，都应该使用字面量。要注意 `nil` 值不能传给 `NSArray` 和 `NSDictionary` 字面量，这样做会导致崩溃。
+每当创建 `NSString`， `NSDictionary`， `NSArray`，和 `NSNumber` 类的不可变实例时，都应该注意英文单词的选择，我们的母语不是英语，应该尽可能使用简单的英语单词，把英语对大脑思考力的消耗维持在尽量低的水平，不使用复数和时态。
+
+* NSDictionary变量以Dict结尾，不使用复式形式
+* NSArray变量以Array结尾，不使用复式形式。
+* 布尔型变量使用 `is/should` 开头
+* 数值型变量使用 `Count/Sum` 这样的单词结尾
+* 表达即将发生的事情使用名词加 `Will` 加动词结尾，比如 `WillHappen`
+* 表达正在发生的事情使用名词加 `Is` 加动词的正在进行时态，比如 `IsHappening`
+* 表达已经发生的事情使用名词加 `DidHappen` 加动词结尾，比如 `DidHappen`
+
+多个变量赋值时每个变量独占一行，并且使用 Xcode 的 [XAlign][XAlign] 插件将等号对齐，大大提升代码美感和可读性。
+
+[Naming_1]:http://qfi.sh/XAlign/
 
 **推荐：**
+
+```objc
+NSArray *nameArray         = @[ @"Brian", @"Matt", @"Chris", @"Alex", @"Steve", @"Paul" ];
+NSDictionary *productDict  = @{ @"iPhone" : @"Kate", @"iPad" : @"Kamal", @"Mobile Web" : @"Bill" };
+NSNumber *shouldUseLiteral = @YES;
+NSNumber *buildingZIPCode  = @10018;
+bool isAvailable           = YES;
+
+- (void) dictWillLoad;
+- (void) dictIsLoading;
+- (void) dictDidLoad;
+```
+
+**反对：**
 
 ```objc
 NSArray *names = @[@"Brian", @"Matt", @"Chris", @"Alex", @"Steve", @"Paul"];
 NSDictionary *productManagers = @{@"iPhone" : @"Kate", @"iPad" : @"Kamal", @"Mobile Web" : @"Bill"};
 NSNumber *shouldUseLiterals = @YES;
 NSNumber *buildingZIPCode = @10018;
-```
+bool available = YES;
 
-**反对：**
-
-```objc
-NSArray *names = [NSArray arrayWithObjects:@"Brian", @"Matt", @"Chris", @"Alex", @"Steve", @"Paul", nil];
-NSDictionary *productManagers = [NSDictionary dictionaryWithObjectsAndKeys: @"Kate", @"iPhone", @"Kamal", @"iPad", @"Bill", @"Mobile Web", nil];
-NSNumber *shouldUseLiterals = [NSNumber numberWithBool:YES];
-NSNumber *buildingZIPCode = [NSNumber numberWithInteger:10018];
+- (void) dictLoading;
+- (void) dictLoaded;
+- (void) beforeDictLoad;
+- (void) afterDictLoad;
 ```
 
 ## CGRect 函数
@@ -319,16 +442,14 @@ CGFloat height = frame.size.height;
 **推荐：**
 
 ```objc
-static NSString * const NYTAboutViewControllerCompanyName = @"The New York Times Company";
-
-static const CGFloat NYTImageThumbnailHeight = 50.0;
+static NSString * const COMPANY_NAME  = @"Company";
+static const CGFloat THUMBNAIL_HEIGHT = 50.0;
 ```
 
 **反对：**
 
 ```objc
-#define CompanyName @"The New York Times Company"
-
+#define CompanyName @"Company"
 #define thumbnailHeight 2
 ```
 
@@ -339,9 +460,9 @@ static const CGFloat NYTImageThumbnailHeight = 50.0;
 **推荐：**
 
 ```objc
-typedef NS_ENUM(NSInteger, NYTAdRequestState) {
-    NYTAdRequestStateInactive,
-    NYTAdRequestStateLoading
+typedef NS_ENUM(NSInteger, AdRequestState) {
+    AdRequestStateInactive,
+    AdRequestStateLoading
 };
 ```
 
@@ -352,11 +473,11 @@ typedef NS_ENUM(NSInteger, NYTAdRequestState) {
 **举例：**
 
 ```objc
-typedef NS_OPTIONS(NSUInteger, NYTAdCategory) {
-NYTAdCategoryAutos      = 1 << 0,
-NYTAdCategoryJobs       = 1 << 1,
-NYTAdCategoryRealState  = 1 << 2,
-NYTAdCategoryTechnology = 1 << 3
+typedef NS_OPTIONS(NSUInteger, AdCategory) {
+    AdCategoryAutos      = 1 << 0,
+    AdCategoryJobs       = 1 << 1,
+    AdCategoryRealState  = 1 << 2,
+    AdCategoryTechnology = 1 << 3
 };
 ```
 
@@ -371,22 +492,21 @@ NYTAdCategoryTechnology = 1 << 3
 @interface NYTAdvertisement ()
 
 @property (nonatomic, strong) GADBannerView *googleAdView;
-@property (nonatomic, strong) ADBannerView *iAdView;
-@property (nonatomic, strong) UIWebView *adXWebView;
+@property (nonatomic, strong) ADBannerView  *iAdView;
+@property (nonatomic, strong) UIWebView     *adXWebView;
 
 @end
 ```
 
 ## 图片命名
 
-图片名称应该被统一命名以保持组织的完整。它们应该被命名为一个说明它们用途的驼峰式字符串，其次是自定义类或属性的无前缀名字（如果有的话），然后进一步说明颜色 和/或 展示位置，最后是它们的状态。
+图片等资源文件的名称统一使用全小写+下划线，这样无论在任何系统中都可以让设计师不去关注大小写敏感问题。图片所在的目录也使用全小写+下划线的形式。
 
 **推荐：**
 
-* `RefreshBarButtonItem` / `RefreshBarButtonItem@2x` 和 `RefreshBarButtonItemSelected` / `RefreshBarButtonItemSelected@2x`
-* `ArticleNavigationBarWhite` / `ArticleNavigationBarWhite@2x` 和 `ArticleNavigationBarBlackSelected` / `ArticleNavigationBarBlackSelected@2x`.
-
-图片目录中被用于类似目的的图片应归入各自的组中。
+* `logo_chs.png`
+* `common_box.png`
+* `background_1.jpg`
 
 
 ## 布尔
@@ -408,6 +528,8 @@ if (!someObject) {
 if (someObject == nil) {
 }
 ```
+
+_如果Objective-C代码有被移植到Java的需要，则以上原则不适用，需要反过来做，因为Java中比较变量是否为null必须写双等号_
 
 -----
 
@@ -468,16 +590,17 @@ if (isAwesome == YES) // 永远别这么做
 @import QuartzCore;
 
 // Models
-#import "NYTUser.h"
+#import "User.h"
 
 // Views
-#import "NYTButton.h"
-#import "NYTUserView.h"
+#import "Button.h"
+#import "UserView.h"
 ```   
 
 
 [Import_1]: http://ashfurrow.com/blog/structuring-modern-objective-c
 [Import_2]: http://clang.llvm.org/docs/Modules.html#using-modules
+
 
 ## Xcode 工程
 
@@ -490,17 +613,4 @@ if (isAwesome == YES) // 永远别这么做
 [Xcode-project_1]:http://boredzo.org/blog/archives/2009-11-07/warnings
 
 [Xcode-project_2]:http://clang.llvm.org/docs/UsersManual.html#controlling-diagnostics-via-pragmas
-
-
-# 其他 Objective-C 风格指南
-
-如果感觉我们的不太符合你的口味，可以看看下面的风格指南：
-
-* [Google](http://google-styleguide.googlecode.com/svn/trunk/objcguide.xml)
-* [GitHub](https://github.com/github/objective-c-conventions)
-* [Adium](https://trac.adium.im/wiki/CodingStyle)
-* [Sam Soffes](https://gist.github.com/soffes/812796)
-* [CocoaDevCentral](http://cocoadevcentral.com/articles/000082.php)
-* [Luke Redpath](http://lukeredpath.co.uk/blog/my-objective-c-style-guide.html)
-* [Marcus Zarra](http://www.cimgf.com/zds-code-style-guide/)
 
