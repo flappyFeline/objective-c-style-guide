@@ -445,11 +445,10 @@ bool available = YES;
 **推荐：**
 
 ```objc
-CGRect frame = self.view.frame;
-
-CGFloat x = CGRectGetMinX(frame);
-CGFloat y = CGRectGetMinY(frame);
-CGFloat width = CGRectGetWidth(frame);
+CGRect frame   = self.view.frame;
+CGFloat x      = CGRectGetMinX(frame);
+CGFloat y      = CGRectGetMinY(frame);
+CGFloat width  = CGRectGetWidth(frame);
 CGFloat height = CGRectGetHeight(frame);
 ```
 
